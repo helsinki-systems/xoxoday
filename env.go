@@ -1,8 +1,8 @@
 package xoxoday
 
-type env string
+type env int
 
 const (
-	EnvDevelopment env = "dev"
-	EnvProduction  env = "prod"
+	EnvDevelopment env = iota
+	EnvProduction
 )
