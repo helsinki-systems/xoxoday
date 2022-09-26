@@ -3,11 +3,10 @@ package xoxoday
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 	"time"
 )
 
-func (a *API) DoGetVouchersRequest(data GetVouchersRequestData) ([]GetVouchersResponse, error) {
+func (a *API) Vouchers(data VouchersRequestData) ([]VouchersResponse, error) {
 	req := Request{
 		Query: "plumProAPI.mutation.getVouchers",
 		Tag:   "plumProAPI",
@@ -23,8 +22,8 @@ func (a *API) DoGetVouchersRequest(data GetVouchersRequestData) ([]GetVouchersRe
 
 	var res struct {
 		Data struct {
-			GetVouchers struct {
-				Data []GetVouchersResponse `json:"data"`
+			Vouchers struct {
+				Data []VouchersResponse `json:"data"`
 			} `json:"getVouchers"`
 		} `json:"data"`
 	}
@@ -32,26 +31,31 @@ func (a *API) DoGetVouchersRequest(data GetVouchersRequestData) ([]GetVouchersRe
 		return nil, fmt.Errorf("failed to unmarshal response: %w", err)
 	}
 
-	return res.Data.GetVouchers.Data, nil
+	return res.Data.Vouchers.Data, nil
 }
 
-type GetVouchersRequestData struct {
-	Limit           int     `json:"limit"`
-	Page            int     `json:"page"`
-	IncludeProducts string  `json:"includeProducts"`
-	ExcludeProducts string  `json:"excludeProducts"`
-	ExchangeRate    float64 `json:"exchangeRate"`
-	Sort            struct {
-		Field string `json:"field"`
-		Order string `json:"order"`
-	} `json:"sort"`
-	Filters []struct {
-		Key   string `json:"key"`
-		Value string `json:"value"`
-	} `json:"filters"`
+type VouchersRequestData struct {
+	Limit           int                         `json:"limit"`
+	Page            int                         `json:"page"`
+	IncludeProducts string                      `json:"includeProducts"`
+	ExcludeProducts string                      `json:"excludeProducts"`
+	ExchangeRate    float64                     `json:"exchangeRate"`
+	Sort            VouchersRequestDataSort     `json:"sort"`
+	Filters         []VouchersRequestDataFilter `json:"filters"`
 }
 
-type GetVouchersResponse struct {
+type VouchersRequestDataSort struct {
+	Field string `json:"field"`
+	Order string `json:"order"`
+}
+
+type VouchersRequestDataFilter struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
+
+type VouchersResponse struct {
+	// TODO: IS OK! :)
 	ProductID                      int      `json:"productId"`
 	Name                           string   `json:"name"`
 	Description                    string   `json:"description"`
@@ -77,27 +81,14 @@ type GetVouchersResponse struct {
 	TATInDays          int     `json:"tatInDays"`
 	UsageType          string  `json:"usageType"`
 	DeliveryType       string  `json:"deliveryType"`
-	IsCommon           string  `json:"isCommon"`
-	Fee                float64 `json:"fee"`
-	Discount           float64 `json:"discount"`
-	ExchangeRate       int     `json:"exchangeRate"`
+	// TODO: This might need to be a boolean
+	IsCommon     string  `json:"isCommon"`
+	Fee          float64 `json:"fee"`
+	Discount     float64 `json:"discount"`
+	ExchangeRate int     `json:"exchangeRate"`
 }
 
-type jsonTime time.Time
-
-func (jt *jsonTime) UnmarshalJSON(b []byte) error {
-	s := strings.Trim(string(b), "\"")
-	t, err := time.Parse("2006-01-02 15:04:05", s)
-	if err != nil {
-		return err
-	}
-
-	*jt = jsonTime(t)
-
-	return nil
-}
-
-func (a *API) DoGetFiltersRequest(data GetFiltersRequestData) ([]GetFiltersResponse, error) {
+func (a *API) Filters(data FiltersRequestData) ([]FiltersResponse, error) {
 	req := Request{
 		Query: "plumProAPI.mutation.getFilters",
 		Tag:   "plumProAPI",
@@ -113,8 +104,8 @@ func (a *API) DoGetFiltersRequest(data GetFiltersRequestData) ([]GetFiltersRespo
 
 	var res struct {
 		Data struct {
-			GetFilters struct {
-				Data []GetFiltersResponse `json:"data"`
+			Filters struct {
+				Data []FiltersResponse `json:"data"`
 			} `json:"getFilters"`
 		} `json:"data"`
 	}
@@ -122,16 +113,16 @@ func (a *API) DoGetFiltersRequest(data GetFiltersRequestData) ([]GetFiltersRespo
 		return nil, fmt.Errorf("failed to unmarshal response: %w", err)
 	}
 
-	return res.Data.GetFilters.Data, nil
+	return res.Data.Filters.Data, nil
 }
 
-type GetFiltersRequestData struct {
+type FiltersRequestData struct {
 	FilterGroupCode string `json:"filterGroupCode"`
 	IncludeFilters  string `json:"includeFilters"`
 	ExcludeFilters  string `json:"excludeFilters"`
 }
 
-type GetFiltersResponse struct {
+type FiltersResponse struct {
 	FilterGroupName        string `json:"filterGroupName"`
 	FilterGroupDescription string `json:"filterGroupDescription"`
 	FilterGroupCode        string `json:"filterGroupCode"`
@@ -142,7 +133,7 @@ type GetFiltersResponse struct {
 	} `json:"filters"`
 }
 
-func (a *API) DoGetBalanceRequest() (*GetBalanceResponse, error) {
+func (a *API) Balance() (*BalanceResponse, error) {
 	req := Request{
 		Query: "plumProAPI.query.getBalance",
 		Tag:   "plumProAPI",
@@ -158,8 +149,8 @@ func (a *API) DoGetBalanceRequest() (*GetBalanceResponse, error) {
 
 	var res struct {
 		Data struct {
-			GetBalance struct {
-				Data GetBalanceResponse `json:"data"`
+			Balance struct {
+				Data BalanceResponse `json:"data"`
 			} `json:"getBalance"`
 		} `json:"data"`
 	}
@@ -167,16 +158,16 @@ func (a *API) DoGetBalanceRequest() (*GetBalanceResponse, error) {
 		return nil, fmt.Errorf("failed to unmarshal response: %w", err)
 	}
 
-	return &res.Data.GetBalance.Data, nil
+	return &res.Data.Balance.Data, nil
 }
 
-type GetBalanceResponse struct {
-	Points   int    `json:"points"`
-	Value    int    `json:"value"`
-	Currency string `json:"currency"`
+type BalanceResponse struct {
+	Points   float64 `json:"points"`
+	Value    float64 `json:"value"`
+	Currency string  `json:"currency"`
 }
 
-func (a *API) DoGetOrderHistoryRequest(data GetOrderHistoryRequestData) ([]GetOrderHistoryResponse, error) {
+func (a *API) OrderHistory(data OrderHistoryRequestData) ([]OrderHistoryResponse, error) {
 	req := Request{
 		Query: "plumProAPI.mutation.getOrderHistory",
 		Tag:   "plumProAPI",
@@ -192,8 +183,8 @@ func (a *API) DoGetOrderHistoryRequest(data GetOrderHistoryRequestData) ([]GetOr
 
 	var res struct {
 		Data struct {
-			GetOrderHistory struct {
-				Data []GetOrderHistoryResponse `json:"data"`
+			OrderHistory struct {
+				Data []OrderHistoryResponse `json:"data"`
 			} `json:"getOrderHistory"`
 		} `json:"data"`
 	}
@@ -201,18 +192,28 @@ func (a *API) DoGetOrderHistoryRequest(data GetOrderHistoryRequestData) ([]GetOr
 		return nil, fmt.Errorf("failed to unmarshal response: %w", err)
 	}
 
-	return res.Data.GetOrderHistory.Data, nil
+	return res.Data.OrderHistory.Data, nil
 }
 
-type GetOrderHistoryRequestData struct {
+type OrderHistoryRequestData struct {
 	StartDate string `json:"startDate"`
 	EndDate   string `json:"endDate"`
 	Limit     int    `json:"limit"`
 	Page      int    `json:"page"`
 }
 
-type GetOrderHistoryResponse struct {
-	OrderID        string   `json:"orderId"`
+func (rd *OrderHistoryRequestData) SetStartEnd(start, end time.Time) *OrderHistoryRequestData {
+	const format = "2006-01-02"
+
+	rd.StartDate = start.Format(format)
+	rd.EndDate = end.Format(format)
+
+	return rd
+}
+
+type OrderHistoryResponse struct {
+	// TODO
+	OrderID        int      `json:"orderId"`
 	OrderDate      jsonTime `json:"orderDate"`
 	EMail          string   `json:"email"`
 	DeliveryStatus string   `json:"deliveryStatus"`
@@ -227,7 +228,7 @@ type GetOrderHistoryResponse struct {
 	} `json:"products"`
 }
 
-func (a *API) DoGetOrderDetailsRequest(data GetOrderDetailsRequestData) (*GetOrderDetailsResponse, error) {
+func (a *API) OrderDetails(data OrderDetailsRequestData) (*OrderDetailsResponse, error) {
 	req := Request{
 		Query: "plumProAPI.mutation.getOrderDetails",
 		Tag:   "plumProAPI",
@@ -243,8 +244,8 @@ func (a *API) DoGetOrderDetailsRequest(data GetOrderDetailsRequestData) (*GetOrd
 
 	var res struct {
 		Data struct {
-			GetOrderDetails struct {
-				Data GetOrderDetailsResponse `json:"data"`
+			OrderDetails struct {
+				Data OrderDetailsResponse `json:"data"`
 			} `json:"getOrderDetails"`
 		} `json:"data"`
 	}
@@ -252,34 +253,41 @@ func (a *API) DoGetOrderDetailsRequest(data GetOrderDetailsRequestData) (*GetOrd
 		return nil, fmt.Errorf("failed to unmarshal response: %w", err)
 	}
 
-	return &res.Data.GetOrderDetails.Data, nil
+	return &res.Data.OrderDetails.Data, nil
 }
 
-type GetOrderDetailsRequestData struct {
+type OrderDetailsRequestData struct {
+	// TODO
+	OrderID  int    `json:"orderId"`
 	PONumber string `json:"poNumber"`
-	OrderID  string `json:"orderId"`
 }
 
-type GetOrderDetailsResponse struct {
-	OrderID         string    `json:"orderId"`
-	Vouchers        []Voucher `json:"vouchers"`
-	AmountCharged   float64   `json:"amountCharged"`
-	CurrencyCode    string    `json:"currencyCode"`
-	CurrencyValue   float64   `json:"currencyValue"`
-	DiscountPercent float64   `json:"discountPercent"`
-	OrderDiscount   float64   `json:"orderDiscount"`
-	OrderTotal      float64   `json:"orderTotal"`
-	OrderStatus     string    `json:"orderStatus"`
-	DeliveryStatus  string    `json:"deliveryStatus"`
+type OrderDetailsResponse struct {
+	// TODO
+	OrderID       int       `json:"orderId"`
+	Vouchers      []Voucher `json:"vouchers"`
+	AmountCharged float64   `json:"amountCharged"`
+	CurrencyCode  string    `json:"currencyCode"`
+	CurrencyValue float64   `json:"currencyValue"`
+	Tag           string    `json:"tag"`
+	// NOTE: API doc says that this is a float, when in fact it's a string
+	DiscountPercent string `json:"discountPercent"`
+	// NOTE: API doc says that this is a float, when in fact it's a string
+	OrderDiscount  string  `json:"orderDiscount"`
+	OrderTotal     float64 `json:"orderTotal"`
+	OrderStatus    string  `json:"orderStatus"`
+	DeliveryStatus string  `json:"deliveryStatus"`
 }
 
 type Voucher struct {
-	Amount        int     `json:"amount,string"`
-	Country       string  `json:"country"`
-	Currency      string  `json:"currency"`
-	OrderID       string  `json:"orderId"`
-	Pin           string  `json:"pin"`
-	ProductID     string  `json:"productId"`
+	Amount   int    `json:"amount"`
+	Country  string `json:"country"`
+	Currency string `json:"currency"`
+	// TODO
+	OrderID int    `json:"orderId"`
+	Pin     string `json:"pin"`
+	// TODO
+	ProductID     int     `json:"productId"`
 	Tag           string  `json:"tag"`
 	Type          string  `json:"type"`
 	Validity      string  `json:"validity"`
@@ -287,7 +295,7 @@ type Voucher struct {
 	CurrencyValue float64 `json:"currencyValue"`
 }
 
-func (a *API) DoPlaceOrderRequest(data PlaceOrderRequestData) (*PlaceOrderResponse, error) {
+func (a *API) PlaceOrder(data PlaceOrderRequestData) (*PlaceOrderResponse, error) {
 	req := Request{
 		Query: "plumProAPI.mutation.placeOrder",
 		Tag:   "plumProAPI",
@@ -316,6 +324,7 @@ func (a *API) DoPlaceOrderRequest(data PlaceOrderRequestData) (*PlaceOrderRespon
 }
 
 type PlaceOrderRequestData struct {
+	// TODO: IS OK! :)
 	ProductID           int         `json:"productId"`
 	Quantity            int         `json:"quantity"`
 	Denomination        int         `json:"denomination"`
@@ -327,18 +336,33 @@ type PlaceOrderRequestData struct {
 	NotifyReceiverEMail jsonBoolInt `json:"notifyReceiverEmail"`
 }
 
+func (rd *PlaceOrderRequestData) SetNotifyAdminEMail(b bool) *PlaceOrderRequestData {
+	rd.NotifyAdminEMail = jsonBoolInt{bool: b}
+
+	return rd
+}
+
+func (rd *PlaceOrderRequestData) SetNotifyReceiverEMail(b bool) *PlaceOrderRequestData {
+	rd.NotifyReceiverEMail = jsonBoolInt{bool: b}
+
+	return rd
+}
+
 type PlaceOrderResponse struct {
-	OrderID         int       `json:"orderId"`
-	Vouchers        []Voucher `json:"vouchers"`
-	AmountCharged   float64   `json:"amountCharged"`
-	CurrencyCode    string    `json:"currencyCode"`
-	CurrencyValue   float64   `json:"currencyValue"`
-	Tag             string    `json:"tag"`
-	DiscountPercent float64   `json:"discountPercent"`
-	OrderDiscount   float64   `json:"orderDiscount"`
-	OrderTotal      float64   `json:"orderTotal"`
-	OrderStatus     string    `json:"orderStatus"`
-	DeliveryStatus  string    `json:"deliveryStatus"`
+	// TODO
+	OrderID       int       `json:"orderId"`
+	Vouchers      []Voucher `json:"vouchers"`
+	AmountCharged float64   `json:"amountCharged"`
+	CurrencyCode  string    `json:"currencyCode"`
+	CurrencyValue float64   `json:"currencyValue"`
+	Tag           string    `json:"tag"`
+	// NOTE: API doc says that this is a float, when in fact it's a string
+	DiscountPercent string `json:"discountPercent"`
+	// NOTE: API doc says that this is a float, when in fact it's a string
+	OrderDiscount  string  `json:"orderDiscount"`
+	OrderTotal     float64 `json:"orderTotal"`
+	OrderStatus    string  `json:"orderStatus"`
+	DeliveryStatus string  `json:"deliveryStatus"`
 }
 
 // General io

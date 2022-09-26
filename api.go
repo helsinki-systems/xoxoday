@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"time"
 
 	"golang.org/x/oauth2"
 )
@@ -68,17 +67,22 @@ func (a *API) Run(r Request) ([]byte, error) {
 
 type OAuthConfig oauth2.Config
 
-func New(env env, t Token, oac OAuthConfig) *API {
+func New(
+	ctx context.Context,
+	env env,
+	t Token,
+	oac OAuthConfig,
+) *API {
 	c := oauth2.Config(oac)
 
 	return &API{
 		env: env,
 
-		client: (&c).Client(context.Background(), &oauth2.Token{
+		client: (&c).Client(ctx, &oauth2.Token{
 			AccessToken:  t.AccessToken,
 			TokenType:    t.TokenType,
 			RefreshToken: t.RefreshToken,
-			Expiry:       time.Time(t.AccessTokenExpiry),
+			Expiry:       t.AccessTokenExpiry.Time,
 		}),
 	}
 }
