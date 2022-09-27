@@ -55,7 +55,6 @@ type VouchersRequestDataFilter struct {
 }
 
 type VouchersResponse struct {
-	// TODO: IS OK! :)
 	ProductID                      int      `json:"productId"`
 	Name                           string   `json:"name"`
 	Description                    string   `json:"description"`
@@ -212,7 +211,6 @@ func (rd *OrderHistoryRequestData) SetStartEnd(start, end time.Time) *OrderHisto
 }
 
 type OrderHistoryResponse struct {
-	// TODO
 	OrderID        int      `json:"orderId"`
 	OrderDate      jsonTime `json:"orderDate"`
 	EMail          string   `json:"email"`
@@ -257,13 +255,11 @@ func (a *API) OrderDetails(data OrderDetailsRequestData) (*OrderDetailsResponse,
 }
 
 type OrderDetailsRequestData struct {
-	// TODO
 	OrderID  int    `json:"orderId"`
 	PONumber string `json:"poNumber"`
 }
 
 type OrderDetailsResponse struct {
-	// TODO
 	OrderID       int       `json:"orderId"`
 	Vouchers      []Voucher `json:"vouchers"`
 	AmountCharged float64   `json:"amountCharged"`
@@ -280,13 +276,11 @@ type OrderDetailsResponse struct {
 }
 
 type Voucher struct {
-	Amount   int    `json:"amount"`
-	Country  string `json:"country"`
-	Currency string `json:"currency"`
-	// TODO
-	OrderID int    `json:"orderId"`
-	Pin     string `json:"pin"`
-	// TODO
+	Amount        int     `json:"amount"`
+	Country       string  `json:"country"`
+	Currency      string  `json:"currency"`
+	OrderID       int     `json:"orderId"`
+	Pin           string  `json:"pin"`
 	ProductID     int     `json:"productId"`
 	Tag           string  `json:"tag"`
 	Type          string  `json:"type"`
@@ -324,7 +318,6 @@ func (a *API) PlaceOrder(data PlaceOrderRequestData) (*PlaceOrderResponse, error
 }
 
 type PlaceOrderRequestData struct {
-	// TODO: IS OK! :)
 	ProductID           int         `json:"productId"`
 	Quantity            int         `json:"quantity"`
 	Denomination        int         `json:"denomination"`
@@ -349,7 +342,6 @@ func (rd *PlaceOrderRequestData) SetNotifyReceiverEMail(b bool) *PlaceOrderReque
 }
 
 type PlaceOrderResponse struct {
-	// TODO
 	OrderID       int       `json:"orderId"`
 	Vouchers      []Voucher `json:"vouchers"`
 	AmountCharged float64   `json:"amountCharged"`
