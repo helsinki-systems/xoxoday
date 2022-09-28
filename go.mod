@@ -5,6 +5,8 @@ go 1.18
 require golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1
 
 require (
+	github.com/PuerkitoBio/goquery v1.8.0 // indirect
+	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	golang.org/x/net v0.0.0-20220624214902-1bab6f366d9e // indirect
 	google.golang.org/appengine v1.6.7 // indirect
