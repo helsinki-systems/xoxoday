@@ -73,16 +73,24 @@ func New(
 	t Token,
 	oac OAuthConfig,
 ) *API {
+	verifyToken(t)
+
+	ac := &API{
+		env: env,
+	}
+
+	oac.Endpoint = oauth2.Endpoint{
+		TokenURL: ac.makeURL("/v1/oauth/token/" + t.TokenType),
+		AuthURL:  ac.makeURL("/v1/oauth/token"),
+	}
 	c := oauth2.Config(oac)
 
-	return &API{
-		env: env,
+	ac.client = (&c).Client(ctx, &oauth2.Token{
+		AccessToken:  t.AccessToken,
+		TokenType:    t.TokenType,
+		RefreshToken: t.RefreshToken,
+		Expiry:       t.AccessTokenExpiry.Time,
+	})
 
-		client: (&c).Client(ctx, &oauth2.Token{
-			AccessToken:  t.AccessToken,
-			TokenType:    t.TokenType,
-			RefreshToken: t.RefreshToken,
-			Expiry:       t.AccessTokenExpiry.Time,
-		}),
-	}
+	return ac
 }
